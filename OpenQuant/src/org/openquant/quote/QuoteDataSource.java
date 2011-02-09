@@ -59,7 +59,7 @@ public abstract class QuoteDataSource {
 				Set<String> localSymbols = new HashSet<String>(getSymbols());
 				//Collections.copy(localSymbols,getSymbols());
 				
-				log.info(">> BEGIN retreive");
+				log.info(">> BEGIN retrieve");
 				for (String symbol : localSymbols) {
 					try {
 						Candle candle = retrieveQuoteCandle(symbol);
@@ -70,7 +70,7 @@ public abstract class QuoteDataSource {
 						log.error(e.getMessage(), e);
 					}
 				}
-				log.info(">> END retreive");
+				log.info(">> END retrieve");
 				
 			
 		}
@@ -137,6 +137,6 @@ public abstract class QuoteDataSource {
 		
 	}
 
-	public abstract Candle retrieveQuoteCandle(String symbol);
+	public abstract Candle retrieveQuoteCandle(String symbol) throws Exception;
 
 }
