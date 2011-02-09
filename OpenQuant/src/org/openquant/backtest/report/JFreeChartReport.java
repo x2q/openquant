@@ -60,7 +60,7 @@ public class JFreeChartReport implements PositionProcessor {
 		double profit = (position.getExitPrice() - position.getEntryPrice()) * position.getQuantity();
 		profit = profit - (profit*slippage) - commission;
 		
-		series.addOrUpdate(new Day(position.getExitDate()), capital);
+		series.addOrUpdate(new Day( new Date() ), capital);
 
 	}
 	

@@ -72,7 +72,7 @@ public class OrderManager {
 		}
 	}
 	
-	public void buyAtMarket(int barIndex, double marketPrice, int quantity, CandleSeries data){
+	public Position buyAtMarket(int barIndex, double marketPrice, int quantity, CandleSeries data){
 		Candle current = data.get(barIndex);
 		
 		log.debug("ENTER Position : " + current + " at market Price: " + marketPrice);
@@ -83,6 +83,8 @@ public class OrderManager {
 		pos.setEntryDate(current.getDate());
 
 		openPosition(pos);
+		
+		return pos;
 		
 	}
 
@@ -98,32 +100,34 @@ public class OrderManager {
 	 * @param data
 	 * @return all of the possible Positions for the CandleSeries
 	 */
-	public void buyAtLimit(int barIndex, double limitPrice, int quantity, CandleSeries data) {
+	public Position buyAtLimit(int barIndex, double limitPrice, int quantity, CandleSeries data) {
 
+		Position pos = null;
+		
 		Candle current = data.get(barIndex);
 
 		if (current.getOpenPrice() <= limitPrice) {
 			log.debug("ENTER Position : " + current + " at limit Price: " + current.getOpenPrice());
 
-			Position pos = new Position();
+			pos = new Position();
 			pos.setEntryPrice(current.getOpenPrice());
 			pos.setQuantity(quantity);
 			pos.setEntryDate(current.getDate());
 
 			openPosition(pos);
-			return;
 
 		} else if (current.getLowPrice() <= limitPrice) {
 			log.debug("ENTER Position : " + current + " at limit Price: " + limitPrice);
 			// if it falls within the day's range
-			Position pos = new Position();
+			pos = new Position();
 			pos.setEntryPrice(limitPrice);
 			pos.setEntryDate(current.getDate());
 			pos.setQuantity(quantity);
 
 			openPosition(pos);
-			return;
 		}
+		
+		return pos;
 
 	}
 
@@ -151,6 +155,24 @@ public class OrderManager {
 				closePosition(position);
 				return;
 			} else if (current.getHighPrice() >= limitPrice) {
+				log.debug("EXIT Position(LIMITSALE) : " + current + " at limit Price: " + limitPrice);
+				position.setExitPrice(limitPrice);
+				position.setExitDate(current.getDate());
+				closePosition(position);
+				return;
+			}
+
+		} else {
+			System.err.println("Could not find position" + position);
+		}
+	}
+	
+	public void sellAtLimitIntraday(int barIndex, Position position, double limitPrice, CandleSeries data) {
+		if (openPositions.contains(position)) {
+
+			Candle current = data.get(barIndex);
+
+			if (current.getHighPrice() >= limitPrice) {
 				log.debug("EXIT Position(LIMITSALE) : " + current + " at limit Price: " + limitPrice);
 				position.setExitPrice(limitPrice);
 				position.setExitDate(current.getDate());

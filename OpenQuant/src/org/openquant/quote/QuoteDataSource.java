@@ -1,9 +1,10 @@
 package org.openquant.quote;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -16,7 +17,7 @@ public abstract class QuoteDataSource {
 	
 	private Log log = LogFactory.getLog(QuoteDataSource.class);
 
-	private List<String> symbols = new ArrayList<String>();
+	private Set<String> symbols = new HashSet<String>();
 
 	private boolean loopForever = true;
 
@@ -40,7 +41,7 @@ public abstract class QuoteDataSource {
 		void onGetQuote(Candle quote);
 	}
 	
-	public QuoteDataSource(List<String> symbols, GlobalQuoteListener globalListener){
+	public QuoteDataSource(Set<String> symbols, GlobalQuoteListener globalListener){
 		this.symbols = symbols;
 		this.globalListener = globalListener;
 	}
@@ -53,22 +54,25 @@ public abstract class QuoteDataSource {
 
 		@Override
 		public void run() {
-			try {
-				List<String> localSymbols = Arrays.asList(new String[getSymbols().size()]);
-				Collections.copy(localSymbols,getSymbols());
+			
+				//List<String> localSymbols = Arrays.asList(new String[getSymbols().size()]);
+				Set<String> localSymbols = new HashSet<String>(getSymbols());
+				//Collections.copy(localSymbols,getSymbols());
 				
 				log.info(">> BEGIN retreive");
 				for (String symbol : localSymbols) {
-					Candle candle = retrieveQuoteCandle(symbol);
-					if (candle != null){
-						onGetQuote( candle );
+					try {
+						Candle candle = retrieveQuoteCandle(symbol);
+						if (candle != null){
+							onGetQuote( candle );
+						}
+					} catch (Exception e) {
+						log.error(e.getMessage(), e);
 					}
 				}
 				log.info(">> END retreive");
 				
-			} catch (Exception e) {
-				log.error(e);
-			}
+			
 		}
 	}
 
@@ -93,11 +97,11 @@ public abstract class QuoteDataSource {
 		}
 	}
 
-	public List<String> getSymbols() {
+	public Set<String> getSymbols() {
 		return symbols;
 	}
 
-	public void setSymbols(List<String> symbols) {
+	public void setSymbols(Set<String> symbols) {
 		this.symbols = symbols;
 	}
 	
@@ -123,9 +127,11 @@ public abstract class QuoteDataSource {
 
 	private void onGetQuote(final Candle quoteCandle) {
 
-		log.debug(String.format("Got quote %s[%s, %s, %s, %s, %s, %s]", quoteCandle.getSymbol(),
-				quoteCandle.getClosePrice(), quoteCandle.getOpenPrice(), quoteCandle.getHighPrice(),
-				quoteCandle.getLowPrice(), quoteCandle.getVolume(), quoteCandle.getDate()));
+		if(log.isDebugEnabled()){
+			log.debug(String.format("Got quote %s[%s, %s, %s, %s, %s, %s]", quoteCandle.getSymbol(),
+					quoteCandle.getClosePrice(), quoteCandle.getOpenPrice(), quoteCandle.getHighPrice(),
+					quoteCandle.getLowPrice(), quoteCandle.getVolume(), quoteCandle.getDate()));
+		}
 		
 		this.globalListener.onGetQuote(quoteCandle);
 		

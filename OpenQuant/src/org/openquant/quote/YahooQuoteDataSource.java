@@ -8,9 +8,9 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
@@ -25,11 +25,11 @@ public class YahooQuoteDataSource extends QuoteDataSource {
 
 	private final static DateFormat DATE_FORMAT = new SimpleDateFormat("M/d/yyyy hh:mmaaa");
 	
-	public YahooQuoteDataSource(List<String> symbols, GlobalQuoteListener globalListener) {		
+	public YahooQuoteDataSource(Set<String> symbols, GlobalQuoteListener globalListener) {		
 		super(symbols, globalListener);
 	}
 	
-	public YahooQuoteDataSource(List<String> symbols){
+	public YahooQuoteDataSource(Set<String> symbols){
 		this.setSymbols(symbols);
 	}
 	
@@ -88,7 +88,7 @@ public class YahooQuoteDataSource extends QuoteDataSource {
 		final Log log = LogFactory.getLog(YahooQuoteDataSource.class);
 
 		
-		List<String> symbols = new ArrayList<String>();
+		Set<String> symbols = new HashSet<String>();
 		symbols.add("MSFT");
 		symbols.add("GOOG");
 		

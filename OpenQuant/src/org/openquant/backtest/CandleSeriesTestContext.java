@@ -100,16 +100,20 @@ public abstract class CandleSeriesTestContext {
 		return series.get(barIndex).getDate();
 	}
 
-	public void buyAtMarket(int barIndex, double marketPrice, int quantity, String label) {
-		orderManager.buyAtMarket(barIndex, marketPrice, quantity, series);
+	public Position buyAtMarket(int barIndex, double marketPrice, int quantity, String label) {
+		return orderManager.buyAtMarket(barIndex, marketPrice, quantity, series);
 	}
 	
-	public void buyAtLimit(int barIndex, double limitPrice, int quantity, String label) {
-		orderManager.buyAtLimit(barIndex, limitPrice, quantity, series);
+	public Position buyAtLimit(int barIndex, double limitPrice, int quantity, String label) {
+		return orderManager.buyAtLimit(barIndex, limitPrice, quantity, series);
 	}
 
 	public void sellAtLimit(int barIndex, Position position, double limitPrice, String label) {
 		orderManager.sellAtLimit(barIndex, position, limitPrice, series);
+	}
+	
+	public void sellAtLimitIntraday(int barIndex, Position position, double limitPrice, String label) {
+		orderManager.sellAtLimitIntraday(barIndex, position, limitPrice, series);
 	}
 
 	public void sellAtStop(int barIndex, Position position, double stopPrice, String label) {
