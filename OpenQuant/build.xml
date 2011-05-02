@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="OpenQuant" default="OpenQuantJar" basedir=".">
+
+	<target name="OpenQuantJar" description="Create a jar for the OpenQuant project">
+
+		<mkdir dir="dist/lib" />
+		<jar jarfile="dist/lib/openquant-1.0.jar" includes="**/*.class,**/*.xml" basedir="bin">
+			<manifest>
+				<attribute name="Main-Class" value="org.openquant.backtest.command.OpenQuantCommand" />
+			</manifest>
+		</jar>
+
+		<copy todir="dist/lib">
+			<fileset dir="lib">
+				<include name="**/*.jar" />
+			</fileset>
+		</copy>
+
+		<copy todir="dist/scripts">
+			<fileset dir="scripts">
+				<include name="**/test.groovy" />
+			</fileset>
+		</copy>
+
+		<copy todir="dist/config">
+			<fileset dir="config">
+				<include name="**/*.*" />
+			</fileset>
+		</copy>
+
+		<mkdir dir="dist/data" />
+
+		<copyfile dest="dist/openquant.sh" src="openquant.sh" />
+
+		<tstamp>
+			<format property="time" pattern="MM-dd-yyyy-hh:mm:ssaa" unit="hour" />
+		</tstamp>
+		<zip destfile="${ant.project.name}-${time}.zip" basedir="dist" />
+
+	</target>
+
+</project>
