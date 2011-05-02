@@ -5,7 +5,6 @@ def Close = context.closeSeries()
 def EMAClose = Close.EMA(12)
 def RSI = Close.RSI(25)
 
-
 for (int bar = 25; bar < context.barsCount() - 1; bar++) {
 	
 	println "Date[${context.date(bar)}], Close[${Close.getAt(bar)}], " +
@@ -24,7 +23,5 @@ for (int bar = 25; bar < context.barsCount() - 1; bar++) {
 		if (context.hasOpenPositions()) {
 			context.sellAtStop(bar, pos, pos.getEntryPrice() * 0.95, "XLS")
 		}
-	}
-	
-	
+	}	
 }
