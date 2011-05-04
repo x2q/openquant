@@ -41,7 +41,7 @@ public class OpenQuantCommand {
 
 	private double commission = 9.99;
 
-	private double slippage = 0.002;
+	private double slippage = 0.001;
 
 	private static Map<String, SymbolSetSeries> symbolMap = new HashMap<String, SymbolSetSeries>();
 

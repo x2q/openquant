@@ -140,6 +140,10 @@ public abstract class CandleSeriesTestContext {
 		}
 		return pos;
 	}
+	
+	public Position buyAtLimit(int barIndex, double limitPrice, String comments, QuantityCalculator calculator) {
+		return orderManager.buyAtLimit(barIndex, limitPrice, 0, comments, series, calculator);
+	}
 
 	public void sellAtLimit(int barIndex, Position position, double limitPrice, String comments) {
 		orderManager.sellAtLimit(barIndex, position, limitPrice, comments, series);

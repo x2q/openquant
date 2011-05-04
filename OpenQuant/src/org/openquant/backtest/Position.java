@@ -40,6 +40,12 @@ public class Position {
 	private double score = 0.0;
 	
 	private boolean successfullyFilled = true;
+	
+	private QuantityCalculator quantityCalculator;
+	
+	private Order entry;
+	
+	private Order exit;
 
 	public Position() {
 	}
@@ -53,6 +59,10 @@ public class Position {
 		this.entryPrice = entryPrice;
 		this.exitPrice = exitPrice;
 		this.quantity = quantity;
+	}
+	
+	public boolean isQuantityCalculated(){
+		return quantityCalculator != null;
 	}
 
 	public String getSymbol() {
@@ -129,6 +139,30 @@ public class Position {
 
 	public void setSuccessfullyFilled(boolean successfullyFilled) {
 		this.successfullyFilled = successfullyFilled;
+	}
+
+	public QuantityCalculator getQuantityCalculator() {
+		return quantityCalculator;
+	}
+
+	public void setQuantityCalculator(QuantityCalculator quantityCalculator) {
+		this.quantityCalculator = quantityCalculator;
+	}
+	
+	public Order getEntry() {
+		return entry;
+	}
+
+	public void setEntry(Order entry) {
+		this.entry = entry;
+	}
+
+	public Order getExit() {
+		return exit;
+	}
+
+	public void setExit(Order exit) {
+		this.exit = exit;
 	}
 
 	@Override

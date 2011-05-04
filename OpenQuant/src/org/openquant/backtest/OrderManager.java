@@ -92,6 +92,16 @@ public class OrderManager {
 		return pos;
 		
 	}
+	
+	
+	public Position buyAtLimit(int barIndex, double limitPrice, int quantity, String comments, CandleSeries data, QuantityCalculator calculator) {
+		Position pos = buyAtLimit(barIndex, limitPrice, quantity, comments, data);
+		if (pos != null){
+			pos.setQuantityCalculator(calculator);
+		}
+		return pos;
+	}
+	
 
 	/**
 	 * An order to a broker to buy a specified quantity of a security at or
@@ -105,7 +115,7 @@ public class OrderManager {
 	 * @param data
 	 * @return all of the possible Positions for the CandleSeries
 	 */
-	public Position buyAtLimit(int barIndex, double limitPrice, int quantity, String comments,CandleSeries data) {
+	public Position buyAtLimit(int barIndex, double limitPrice, int quantity, String comments, CandleSeries data) {
 
 		Position pos = null;
 		

@@ -23,11 +23,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openquant.backtest.Order;
 import org.openquant.backtest.Position;
 
 public abstract class AbstractReport {
@@ -45,47 +45,6 @@ public abstract class AbstractReport {
 	private Collection<Position> closedPositions;
 
 	private Collection<Position> openPositions;
-
-	protected class Order {
-		private boolean entry;
-
-		private Date date;
-
-		private double value;
-
-		private Position parentPosition;
-
-		public Order(boolean entry, Date date, double value, Position position) {
-			super();
-			this.date = date;
-			this.value = value;
-			this.entry = entry;
-			this.parentPosition = position;
-		}
-
-		public Date getDate() {
-			return date;
-		}
-
-		public boolean isEntry() {
-			return entry;
-		}
-
-		public double getValue() {
-			return value;
-		}
-
-		public Position getParentPosition() {
-			return parentPosition;
-		}
-
-		@Override
-		public String toString() {
-			return "Order [entry=" + entry + ", date=" + date + ", value="
-					+ value + "]";
-		}
-
-	}
 
 	private Order extractEntryOrder(Position position) {
 
@@ -110,9 +69,11 @@ public abstract class AbstractReport {
 
 			Order exit = extractExitOrder(position);
 			allOrders.add(exit);
+			position.setExit(exit);
 
 			Order entry = extractEntryOrder(position);
 			allOrders.add(entry);
+			position.setEntry(entry);
 
 		}
 
@@ -130,6 +91,18 @@ public abstract class AbstractReport {
 			if (order.isEntry()) {
 
 				Position position = order.getParentPosition();
+				
+				if(position.isQuantityCalculated()){
+					// calculate and set the order value based on the quantity calculator
+					int quantity = position.getQuantityCalculator().execute(totalCapitalAndEquity, availableCash);
+					position.setQuantity(quantity);
+					
+					double val = position.getEntryPrice() * position.getQuantity();
+					order.setValue(val);
+					//position.getEntry().setValue(val);
+					//position.getExit().setValue(val);
+				}
+				
 
 				if (order.getValue() > availableCash) {
 					log.debug("Not enough available cash to purchase stock - "
@@ -156,6 +129,11 @@ public abstract class AbstractReport {
 				Position position = order.getParentPosition();
 
 				if (position.isSuccessfullyFilled()) {
+					
+					if(position.isQuantityCalculated()){						
+						double val = position.getExitPrice() * position.getQuantity();
+						order.setValue(val);
+					}
 
 					double profit = (position.getExitPrice() - position
 							.getEntryPrice()) * position.getQuantity();
