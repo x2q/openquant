@@ -34,7 +34,7 @@
 		<copyfile dest="dist/openquant.bat" src="openquant.bat" />
 
 		<tstamp>
-			<format property="time" pattern="MM-dd-yyyy-hh:mm:ssaa" unit="hour" />
+			<format property="time" pattern="MM-dd-yyyy-hhmmssaa" unit="hour" />
 		</tstamp>
 		<zip destfile="${ant.project.name}-${time}.zip" basedir="dist" />
 
