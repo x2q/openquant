@@ -61,6 +61,20 @@ public abstract class AbstractReport {
 	public double getTotalCapitalAndEquity() {
 		return totalCapitalAndEquity;
 	}
+	
+	private int compareEntries(Order one, Order two){
+		
+		if ((one.isEntry() && two.isEntry()) || (!one.isEntry() && !two.isEntry()) ){
+			return 0;
+		}
+		if (one.isEntry() && !two.isEntry()){
+			return -1;
+		}
+		if ( !one.isEntry() && two.isEntry()){
+			return 1;
+		}
+		return 0;
+	}
 
 	public void process() {
 		List<Order> allOrders = new ArrayList<Order>();
@@ -79,9 +93,22 @@ public abstract class AbstractReport {
 
 		Collections.sort(allOrders, new Comparator<Order>() {
 
+			/**
+			 * Compare and order by date and order entry.
+			 * 
+			 * @param one
+			 * @param two
+			 * @return
+			 */
 			@Override
 			public int compare(Order one, Order two) {
-				return one.getDate().compareTo(two.getDate());
+				 int i = one.getDate().compareTo(two.getDate());
+				 if (i != 0) return i;
+				 
+				 i = compareEntries(one, two);
+				 if (i != 0) return i;
+				 
+				 return 0;
 			}
 
 		});
@@ -137,8 +164,8 @@ public abstract class AbstractReport {
 
 					double profit = (position.getExitPrice() - position
 							.getEntryPrice()) * position.getQuantity();
-					profit = profit - profit * this.slippage;
-					profit = profit - this.commission;
+					profit -= (profit * this.slippage);
+					profit -= this.commission;
 
 					totalCapitalAndEquity += profit;
 
@@ -146,6 +173,7 @@ public abstract class AbstractReport {
 							- (order.getValue() * this.slippage)
 							- this.commission;
 
+					//availableCash = totalCapitalAndEquity;
 					availableCash += exitCost;
 
 					log.debug(order + " Available Cash : " + availableCash);
@@ -173,7 +201,7 @@ public abstract class AbstractReport {
 		this.slippage = slippage;
 		this.closedPositions = closedPositions;
 		this.openPositions = openPositions;
-
+		
 	}
 
 	public abstract void onEnterOrder(Order order, double capital,

@@ -19,6 +19,9 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT
 OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+import java.util.Iterator;
+import java.util.List;
+
 import com.tictactec.ta.lib.Core;
 import com.tictactec.ta.lib.MInteger;
 import com.tictactec.ta.lib.RetCode;
@@ -26,13 +29,21 @@ import com.tictactec.ta.lib.RetCode;
 public class Series {
 
 	private double values[];
-
+	
 	private Core lib = new Core();
 	MInteger outBegIdx = new MInteger();
 	MInteger outNbElement = new MInteger();
 
 	public Series(double[] vals) {
 		values = vals;
+	}
+	
+	public Series(List<Double> vals ){
+		values = convert(vals);
+	}
+	
+	public double[] getValues() {
+		return values;
 	}
 
 	public double getAt(int i) {
@@ -44,7 +55,18 @@ public class Series {
 	}
 	
 	public double getLast(){
-		return values[values.length];
+		return values[values.length-1];
+	}
+	
+	public static double[] convert(List<Double> doubles)
+	{
+		double[] ret = new double[doubles.size()];
+	    Iterator<Double> iterator = doubles.iterator();
+	    for (int i = 0; i < ret.length; i++)
+	    {
+	        ret[i] = iterator.next();
+	    }
+	    return ret;
 	}
 
 	private double[] adjust(double[] source, int lookback) {
@@ -61,6 +83,16 @@ public class Series {
 		}
 
 		return rArray;
+	}
+	
+	public Series Min(int lookback){
+		
+		double output[] = new double[values.length];
+		lookback = lib.minLookback(lookback);
+		
+		RetCode retCode = lib.min(0, values.length - 1, values, lookback, outBegIdx, outNbElement, output);
+		
+		return new Series(adjust(output, lookback));
 	}
 
 	public Series EMA(int lookback) {

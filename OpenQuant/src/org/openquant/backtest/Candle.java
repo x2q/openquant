@@ -125,7 +125,7 @@ public class Candle implements Comparable<Candle>, Serializable {
 
 	@Override
 	public String toString() {
-		return String.format("%s (%s, %s, %s, %s) [%s]", symbol, openPrice, highPrice, lowPrice, closePrice, date);
+		return String.format("%s [%.2f, %.2f, %.2f, %.2f] [%s]", symbol, openPrice, highPrice, lowPrice, closePrice, date);
 	}
 
 	@Override

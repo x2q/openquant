@@ -19,12 +19,19 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT
 OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openquant.backtest.intraday.BuyIntent;
+import org.openquant.backtest.intraday.OrderCallback;
+import org.openquant.backtest.intraday.SellIntent;
+import org.openquant.backtest.intraday.TimeBasedSellIntent;
 
 public class OrderManager {
 
@@ -35,7 +42,13 @@ public class OrderManager {
 	private Set<Position> closedPositions = new LinkedHashSet<Position>();
 
 	private String symbol;
-
+	
+	private List<TimeBasedSellIntent> timeBaseCloseIntents = new ArrayList<TimeBasedSellIntent>();
+	
+	private List<BuyIntent> buyLimitIntents = new ArrayList<BuyIntent>();
+	
+	private List<SellIntent> sellLimitIntents = new ArrayList<SellIntent>();
+	
 	public OrderManager() {
 	}
 
@@ -76,6 +89,102 @@ public class OrderManager {
 		}
 	}
 	
+	public void processCandle(final Candle candle){
+		
+		//log.info( String.format( "Increment Candle %s", candle ));
+		
+		// limit buy orders		
+		for (Iterator<BuyIntent> iter = buyLimitIntents.iterator(); iter.hasNext();) {
+			BuyIntent intent = iter.next();
+			if (candle.getClosePrice() <= intent.getPrice()){
+				// create our order
+				Position pos = new Position();
+				pos.setSymbol(getSymbol());
+				pos.setEntryPrice(candle.getClosePrice());
+				pos.setQuantity(intent.getQuantity());
+				pos.setEntryDate(candle.getDate());
+				if(intent.isQuantityCalculated()){
+					pos.setQuantityCalculator(intent.getQuantityCalc());
+				}
+
+				openPosition(pos);				
+				
+				if(intent.getCallback() != null){
+					intent.getCallback().success(pos);
+				}
+				iter.remove();
+				
+				// since this is intended to be used by a single dataset at a time,
+				// assume that multiple intraday orders of the same stock is not allowed
+				// and clear out all other buy intents
+				clearAllBuyIntents();
+				
+				break;
+			}
+		}
+		
+		// limit sell orders
+		for (Iterator<SellIntent> iter = sellLimitIntents.iterator(); iter.hasNext();) {
+			SellIntent intent = iter.next();
+			
+			if (candle.getClosePrice() >= intent.getPrice() ){
+
+				Position pos = intent.getPosition();
+				pos.setExitPrice(candle.getClosePrice());
+				pos.setQuantity(intent.getQuantity());
+				pos.setExitDate(candle.getDate());
+				
+				closePosition(pos);		
+				if (intent.getCallback() != null){
+					intent.getCallback().success(pos);
+				}
+				iter.remove();
+				
+				clearAllSellIntents();
+				break;
+			}
+			
+		}
+		
+		// Time based sell intent sells at a certain number of bars passed by via it's decrementor
+		for (Iterator<TimeBasedSellIntent> iter = timeBaseCloseIntents.iterator(); iter.hasNext();) {
+			TimeBasedSellIntent intent = iter.next();
+			
+			if (intent.decrement() == 0){
+				Position pos = intent.getPosition();
+				pos.setExitPrice(candle.getClosePrice());
+				pos.setExitDate(candle.getDate());
+				
+				closePosition(pos);
+				if(intent.getCallback() != null){
+					intent.getCallback().success(pos);
+				}
+				iter.remove();
+				
+				clearAllSellIntents();
+			}
+		}
+		
+	}
+	
+	private void clearAllBuyIntents(){
+		buyLimitIntents.clear();
+	}
+	
+	private void clearAllSellIntents(){		
+		sellLimitIntents.clear();
+		timeBaseCloseIntents.clear();
+	}
+	
+	public void timeBasedExitOnClose(int days, Position position, OrderCallback callback){
+		timeBaseCloseIntents.add( new TimeBasedSellIntent(days, position, callback) );
+	}
+	
+	public void buyAtLimit(double limitPrice, QuantityCalculator calculator, OrderCallback callback) {
+		buyLimitIntents.add(new BuyIntent(limitPrice, calculator, callback));
+	}
+	
+	
 	public Position buyAtMarket(int barIndex, double marketPrice, int quantity, String comments, CandleSeries data){
 		Candle current = data.get(barIndex);
 		
@@ -90,6 +199,20 @@ public class OrderManager {
 		openPosition(pos);
 		
 		return pos;
+		
+	}
+	
+	public Position sellAtClose(int barIndex, Position position, int quantity, String comments, CandleSeries data){
+		Candle current = data.get(barIndex);
+		
+		position.setComments(comments);
+		position.setExitPrice(current.getClosePrice());
+		position.setQuantity(quantity);
+		position.setExitDate(current.getDate());
+
+		closePosition(position);
+		
+		return position;
 		
 	}
 	
@@ -147,6 +270,10 @@ public class OrderManager {
 		return pos;
 
 	}
+	
+	public void sellAtLimit(double limitPrice, int quantity, Position position, OrderCallback callback){
+		sellLimitIntents.add(new SellIntent(limitPrice, quantity, position, callback));
+	}
 
 	/**
 	 * An order to a broker to sell a specified quantity of a security at or
@@ -174,26 +301,6 @@ public class OrderManager {
 				closePosition(position);
 				return;
 			} else if (current.getHighPrice() >= limitPrice) {
-				log.debug("EXIT Position(LIMITSALE) : " + current + " at limit Price: " + limitPrice);
-				
-				position.appendComment(comments);
-				position.setExitPrice(limitPrice);
-				position.setExitDate(current.getDate());
-				closePosition(position);
-				return;
-			}
-
-		} else {
-			log.error("Could not find position" + position);
-		}
-	}
-	
-	public void sellAtLimitIntraday(int barIndex, Position position, double limitPrice, String comments, CandleSeries data) {
-		if (openPositions.contains(position)) {
-
-			Candle current = data.get(barIndex);
-
-			if (current.getHighPrice() >= limitPrice) {
 				log.debug("EXIT Position(LIMITSALE) : " + current + " at limit Price: " + limitPrice);
 				
 				position.appendComment(comments);

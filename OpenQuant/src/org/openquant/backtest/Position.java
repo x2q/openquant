@@ -46,13 +46,19 @@ public class Position {
 	private Order entry;
 	
 	private Order exit;
+	
+	private int id;
+	
+	private static int idCounter = 0;
 
 	public Position() {
+		this.id = idCounter++;
 	}
 	
 	public Position(String symbol, Date entryDate, Date exitDate,
 			double entryPrice, double exitPrice, int quantity) {
 		super();
+		this.id = idCounter++;
 		this.symbol = symbol;
 		this.entryDate = entryDate;
 		this.exitDate = exitDate;
@@ -63,6 +69,14 @@ public class Position {
 	
 	public boolean isQuantityCalculated(){
 		return quantityCalculator != null;
+	}
+	
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	public String getSymbol() {
@@ -169,7 +183,7 @@ public class Position {
 	public String toString() {
 
 		return String.format(
-				"{%1$s} entry[%2$td %2$tb %2$ty] : %3$3.2f, exit[%4$td %4$tb %4$ty]: %5$3.2f, quantity: %6$s comments: %7$s score: %8$s", symbol,
+				"{%1$s} entry[%2$td %2$tb %2$ty %2$tT] : %3$3.2f, exit[%4$td %4$tb %4$ty %4$tT]: %5$3.2f, quantity: %6$s comments: %7$s score: %8$s", symbol,
 				entryDate, entryPrice, exitDate, exitPrice, quantity, comments, score);
 	}
 

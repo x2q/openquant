@@ -28,7 +28,7 @@ public class CandleSeries implements Serializable{
 
 	private static final long serialVersionUID = 1L;
 	
-	private List<Candle> candles = new ArrayList<Candle>();
+	protected List<Candle> candles = new ArrayList<Candle>();
 
 	public List<Candle> getCandles() {
 		return candles;

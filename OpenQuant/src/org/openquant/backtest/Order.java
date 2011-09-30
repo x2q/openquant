@@ -41,8 +41,10 @@ public class Order {
 
 	@Override
 	public String toString() {
-		return "Order [entry=" + entry + ", date=" + date + ", value="
-				+ value + "]";
+		//return "Order [entry=" + entry + ", date=" + date + ", value="
+		//		+ value + "]";
+		
+		return String.format( "Order[ id=%s, symbol=%s, entry=%s, date=%s, value=%.2f ]", getParentPosition().getId(), getParentPosition().getSymbol(), entry, date, value );
 	}
 
 }

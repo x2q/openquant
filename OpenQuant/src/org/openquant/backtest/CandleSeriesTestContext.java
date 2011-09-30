@@ -24,6 +24,8 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openquant.backtest.intraday.OrderCallback;
+import org.openquant.backtest.intraday.TimeBasedSellIntent;
 
 public abstract class CandleSeriesTestContext {
 
@@ -144,17 +146,25 @@ public abstract class CandleSeriesTestContext {
 	public Position buyAtLimit(int barIndex, double limitPrice, String comments, QuantityCalculator calculator) {
 		return orderManager.buyAtLimit(barIndex, limitPrice, 0, comments, series, calculator);
 	}
+	
+	public Position buyAtLimit(int barIndex, double limitPrice, String comments, QuantityCalculator calculator, double score) {
+		Position pos =  orderManager.buyAtMarket(barIndex, limitPrice, 0, comments, series);
+		if (pos != null){
+			pos.setScore(score);
+		}
+		return pos;
+	}
 
 	public void sellAtLimit(int barIndex, Position position, double limitPrice, String comments) {
 		orderManager.sellAtLimit(barIndex, position, limitPrice, comments, series);
 	}
 	
-	public void sellAtLimitIntraday(int barIndex, Position position, double limitPrice, String comments) {
-		orderManager.sellAtLimitIntraday(barIndex, position, limitPrice, comments, series);
-	}
-
 	public void sellAtStop(int barIndex, Position position, double stopPrice, String comments) {
 		orderManager.sellAtStop(barIndex, position, stopPrice, comments, series);
+	}
+	
+	public Position sellAtClose(int barIndex, Position position, int quantity, String comments){
+		return orderManager.sellAtClose(barIndex, position, quantity, comments, series);
 	}
 
 	public Position getLastOpenPosition() {
@@ -171,6 +181,32 @@ public abstract class CandleSeriesTestContext {
 
 	public void PrintLine(final String string) {
 		System.out.println(string);
+	}
+	
+	public void incrementBar(int bar){
+		
+		Candle candle = series.get(bar);
+		orderManager.processCandle(candle);
+	}
+	
+	public void timeBasedExitOnClose(int days, Position position){
+		orderManager.timeBasedExitOnClose(days, position, null);
+	}
+	
+	public void timeBasedExitOnClose(int days, Position position, OrderCallback callback){
+		orderManager.timeBasedExitOnClose(days, position, callback);
+	}
+	
+	public void buyAtLimit(double limitPrice, QuantityCalculator calculator, OrderCallback callback) {
+		orderManager.buyAtLimit(limitPrice, calculator, callback);
+	}
+	
+	public void sellAtLimit(double limitPrice, int quantity, Position position, OrderCallback callback){
+		orderManager.sellAtLimit(limitPrice, quantity, position, callback);
+	}
+	
+	public void sellAtLimit(double limitPrice, Position position){
+		orderManager.sellAtLimit(limitPrice, position.getQuantity(), position, null);
 	}
 
 }
