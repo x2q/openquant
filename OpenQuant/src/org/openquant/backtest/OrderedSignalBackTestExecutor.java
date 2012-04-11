@@ -35,9 +35,9 @@ import org.openquant.backtest.report.TradesReport;
 import org.openquant.data.SeriesDatasource;
 import org.springframework.util.StopWatch;
 
-public class BackTestExecutor {
+public class OrderedSignalBackTestExecutor {
 
-	private Log log = LogFactory.getLog(BackTestExecutor.class);
+	private Log log = LogFactory.getLog(OrderedSignalBackTestExecutor.class);
 
 	private SeriesDatasource data;
 
@@ -65,7 +65,7 @@ public class BackTestExecutor {
 		this.testCycles = testCycles;
 	}
 
-	public BackTestExecutor(SeriesDatasource data, List<String> symbols,
+	public OrderedSignalBackTestExecutor(SeriesDatasource data, List<String> symbols,
 			CandleSeriesTestContext test, String reportName, double capital,
 			double commission, double slippage) {
 		super();

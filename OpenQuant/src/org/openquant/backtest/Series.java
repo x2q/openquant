@@ -34,6 +34,9 @@ public class Series {
 	MInteger outBegIdx = new MInteger();
 	MInteger outNbElement = new MInteger();
 
+	public Series(){		
+	}
+	
 	public Series(double[] vals) {
 		values = vals;
 	}
@@ -42,6 +45,10 @@ public class Series {
 		values = convert(vals);
 	}
 	
+	public void setValues(double[] values) {
+		this.values = values;
+	}
+
 	public double[] getValues() {
 		return values;
 	}
@@ -52,6 +59,10 @@ public class Series {
 	
 	public int size(){
 		return values.length;
+	}
+	
+	public double lookBack(int i){
+		return values[values.length-i];
 	}
 	
 	public double getLast(){
@@ -94,7 +105,7 @@ public class Series {
 		
 		return new Series(adjust(output, lookback));
 	}
-
+	
 	public Series EMA(int lookback) {
 
 		double output[] = new double[values.length];

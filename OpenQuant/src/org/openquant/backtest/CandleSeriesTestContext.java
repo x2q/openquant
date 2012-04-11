@@ -90,6 +90,10 @@ public abstract class CandleSeriesTestContext {
 	public Series highSeries() {
 		return series.getHighSeries();
 	}
+	
+	public Series volumeSeries(){
+		return series.getVolumeSeries();
+	}
 
 	public Series lowSeries() {
 		return series.getLowSeries();

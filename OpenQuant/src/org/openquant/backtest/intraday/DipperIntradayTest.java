@@ -3,6 +3,8 @@ package org.openquant.backtest.intraday;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openquant.backtest.Position;
 import org.openquant.backtest.QuantityCalculator;
 import org.openquant.backtest.Series;
@@ -10,6 +12,8 @@ import org.openquant.backtest.intraday.IntradayCandle.CANDLETYPE;
 import org.openquant.data.SeriesDatasource;
 
 public class DipperIntradayTest extends AbstractIntradayTest {
+	
+	private static Log log = LogFactory.getLog(DipperIntradayTest.class);
 		
 	private static final int EXIT_TIME_DAYS = 1;
 	
@@ -27,7 +31,8 @@ public class DipperIntradayTest extends AbstractIntradayTest {
 			//System.out.println( String.format( "bar : %s, date : %s, low : %s, Filter.getAt(bar) : %s", dayIndex, daySeries.getDayCandles(dayIndex).get(0).getDate(),
 			//		Lows.getAt(dayIndex), Filter.getAt(dayIndex) ));
 			
-
+			final int b = bar;
+			
 			List<IntradayCandle> dayCandles = daySeries.getDayCandles(bar);
 			
 			//debugCandles(dayCandles);
@@ -67,8 +72,13 @@ public class DipperIntradayTest extends AbstractIntradayTest {
 
 							@Override
 							public void success(Position position) {
-																
+								
+								String candleString = String.format("Candle[%s, %s, %s, %s]", dayOpenSeries().getAt(b), dayHighSeries().getAt(b), dayLowSeries().getAt(b), dayCloseSeries().getAt(b));
+								
+								System.out.println("ENTER Position : " + candleString + " at limit Price: " + position.getEntryPrice());
+								
 								timeBasedExitOnClose(EXIT_TIME_DAYS, position, new OrderCallback() {
+									
 									
 									@Override
 									public void success(Position position) {
@@ -128,9 +138,9 @@ public class DipperIntradayTest extends AbstractIntradayTest {
 		symbols.add("ADSK");
 		*/
 		
-		IntradayBackTestExecutor executor = new IntradayBackTestExecutor("/home/jay/StockDatabase/Test", new DipperIntradayTest(), "Intraday-100");
+		//IntradayBackTestExecutor executor = new IntradayBackTestExecutor("/home/jay/StockDatabase/Test", new DipperIntradayTest(), "IntradayDipper-100");
 		
-		//IntradayBackTestExecutor executor = new IntradayBackTestExecutor(datasource, symbols, new DipperIntradayTest(), "Intraday-MSFT");
+		IntradayBackTestExecutor executor = new IntradayBackTestExecutor(datasource, symbols, new DipperIntradayTest(), "IntradayDipper-MSFT");
 		executor.run();
 		
 	}

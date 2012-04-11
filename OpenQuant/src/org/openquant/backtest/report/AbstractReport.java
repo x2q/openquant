@@ -103,19 +103,25 @@ public abstract class AbstractReport {
 			@Override
 			public int compare(Order one, Order two) {
 				 int i = one.getDate().compareTo(two.getDate());
-				 if (i != 0) return i;
+				 if (i != 0){
+					 return i;
+				 }
 				 
 				 i = compareEntries(one, two);
-				 if (i != 0) return i;
+				 if (i != 0){
+					 return i;
+				 }
 				 
 				 return 0;
 			}
 
 		});
-
+		
 		for (Order order : allOrders) {
 
 			if (order.isEntry()) {
+				
+				log.debug( String.format("Order[%s]", order) );
 
 				Position position = order.getParentPosition();
 				

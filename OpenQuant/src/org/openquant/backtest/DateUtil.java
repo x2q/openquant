@@ -58,7 +58,7 @@ public class DateUtil {
 		*/
 		
 		
-		Date date = calculateLookbackDate(5);
+		Date date = calculateLookbackDate(1);
 		
 		System.out.println(date);
 
@@ -70,26 +70,20 @@ public class DateUtil {
 		Date dayCounter = new Date();
 		
 		int validDatesCounter = lookback;
-		//for(int i = 0 ; i < lookback; i++){
 		while(validDatesCounter > 0){
 			
-			// check for weekends and holiday list
+			// check for weekends and holiday list			
+			dayCounter.setDate(dayCounter.getDate() - 1);
 			
 			Calendar calendar = Calendar.getInstance();
 		    calendar.setTime(dayCounter);
 
 			if (calendar.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY
-					&& calendar.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY
-					&& !holidayList.contains(dayCounter)) {
-				
-				
+				&& calendar.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY
+				&& !holidayList.contains(dayCounter)) {				
 				validDatesCounter--;
 			
-			}
-			dayCounter.setDate(dayCounter.getDate() - 1);
-				
-			
-		
+			}		
 		}		
 		
 		return dayCounter;

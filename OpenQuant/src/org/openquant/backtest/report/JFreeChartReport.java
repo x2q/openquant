@@ -25,6 +25,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Random;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,15 +44,21 @@ public class JFreeChartReport extends AbstractReport {
 	
 	private String filename;
 	
-	private TimeSeries equitySeries = new TimeSeries("Equity");
+	private TimeSeries equitySeries;
 	
-	private TimeSeries cashSeries = new TimeSeries("Cash");
+	private TimeSeries cashSeries;
 
 	public JFreeChartReport(String filename, double capital, double commission,
 			double slippage, Collection<Position> closedPositions,
 			Collection<Position> openPositions) {
 		
 		super(capital, commission, slippage, closedPositions, openPositions);
+		
+		Random r = new Random();
+		
+		equitySeries = new TimeSeries("Equity" + r.nextInt());
+		
+		cashSeries = new TimeSeries("Cash" + r.nextInt());
 		
 		this.filename = filename;
 		
@@ -92,6 +99,14 @@ public class JFreeChartReport extends AbstractReport {
 
 	}
 	
+	public TimeSeries getEquitySeries() {
+		return equitySeries;
+	}
+	
+	public TimeSeries getCashSeries() {
+		return cashSeries;
+	}
+
 	public static void main(String ... args) throws Exception{
 		
 		DateFormat format = new SimpleDateFormat("dd/MM/yy");

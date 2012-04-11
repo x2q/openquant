@@ -45,8 +45,6 @@ public class OpenMarketUtil {
 		closed.add(new Day(2011, Calendar.SEPTEMBER, 5));
 		closed.add(new Day(2011, Calendar.NOVEMBER, 24));
 		closed.add(new Day(2011, Calendar.DECEMBER, 26));
-		
-		
 	}
 	
 	public static boolean isMarketOpenToday(){
